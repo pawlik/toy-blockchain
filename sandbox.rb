@@ -5,6 +5,7 @@ require 'json'
 require 'pry'
 require 'pry-doc'
 require 'pp'
+require_relative 'lib/transactions_hash.rb'
 
 miner_1_pub_key = "-----BEGIN PUBLIC KEY-----\n" +
 "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA28H+iFAf+G4JZVD1x+lI\n" +
@@ -46,29 +47,7 @@ block = {
   # to verify block, replace signature with empty string, and verify signature
 }
 
-def double_sha2(sth)
-  Digest::SHA2.hexdigest(
-    Digest::SHA2.hexdigest(sth)
-  )
-end
-
-def merkle(transactions) # actually transaction hashes already
-  return double_sha2(transactions.first + transactions.first) if transactions.count == 1
-  return double_sha2(transactions.join) if transactions.count == 2
-
-  new_arr = []
-  transactions.each_slice(2) do |x, y|
-    new_arr << merkle([x, y || x])
-  end
-
-  merkle(new_arr)
-end
-
-def prepare_transactions_hash(hash)
-  transactions_array = hash.values.map(&:to_json).map { |str| double_sha2(str) }
-end
-
-block[:transactions_hash] = merkle(prepare_transactions_hash(block[:transactions]))
+block[:transactions_hash] = TransactionsHash.new(block[:transactions].values.map(&:to_json)).calculate
 
 block_string = block.to_json
 
