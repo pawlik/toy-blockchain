@@ -3,12 +3,11 @@
 require './lib/block.rb'
 
 RSpec.describe Block do
-  subject { Block.new }
+  subject { Block.new(block_hash) }
 
   it do
     is_expected.not_to be_signed
-    subject.sign!('made_up')
-    is_expected.to be_signed
+    expect { subject.sign!('made_up') }.to raise_error('Invalid transactions')
   end
 
   let(:block_hash) do
@@ -24,9 +23,10 @@ RSpec.describe Block do
       height: 0, # important :)
       previous_hash: '',
       signed_by: 'miner_1',
-      signature: 'foo'
+      signature: signature
     }
   end
+  let(:signature) { '' }
   let(:transactions_hash) { 'transactions hash' }
   let(:transactions) do
     {
@@ -40,6 +40,7 @@ RSpec.describe Block do
 
   context 'when created from hash' do
     subject { described_class.from_hash block_hash }
+    let(:signature) { 'foo' }
 
     specify 'block data are stored and retrievable as json string' do
       expect(subject.to_json)
@@ -79,6 +80,22 @@ RSpec.describe Block do
           expect(described_class.from_hash(hash).transactions_valid?).to eq false
         end
       end
+    end
+  end
+
+  describe 'signed_by?' do
+    subject { block.signed_by?(miner) }
+
+    let(:transactions_hash) { TransactionsHash.new(transactions.map(&:to_json)).calculate }
+    let(:block) { Block.new(block_hash) }
+    let(:miner) { Miner.generate }
+    let(:other_miner) { Miner.generate }
+
+    before { miner.sign(block) }
+
+    it do
+      is_expected.to eq true
+      expect(block.signed_by?(other_miner)).to eq false
     end
   end
 end

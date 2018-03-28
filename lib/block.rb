@@ -10,7 +10,18 @@ class Block
   end
 
   def sign!(signature)
+    raise 'Invalid transactions' unless @transactions_hash == TransactionsHash.new(@transactions.map(&:to_json)).calculate
     @signature = signature
+  end
+
+  def unsign!
+    s = @signature
+    @signature = ''
+    s
+  end
+
+  def signed_by?(miner)
+    miner.signed_by_self?(self)
   end
 
   def initialize(hash = {})
