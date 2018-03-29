@@ -13,7 +13,7 @@ class Miner
   end
 
   def public_key
-    @rsa.public_key
+    @rsa.public_key.to_s
   end
 
   def sign(block)

@@ -11,6 +11,8 @@ class TransactionsHash
     sha2(@the_array.map { |item| sha2(item) }.join)
   end
 
+  private
+  
   def sha2(str)
     Digest::SHA2.hexdigest(str)
   end

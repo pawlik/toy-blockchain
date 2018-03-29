@@ -2,15 +2,20 @@
 
 require 'json'
 require_relative 'transactions_hash.rb'
+require_relative 'transaction.rb'
 # TODO: add some desc later
 # Block class
 class Block
+  attr_reader :transactions
+
   def signed?
     !(@signature.nil? || @signature.empty?)
   end
 
   def sign!(signature)
-    raise 'Invalid transactions' unless @transactions_hash == TransactionsHash.new(@transactions.map(&:to_json)).calculate
+    raise 'Invalid transactions' unless @transactions_hash == TransactionsHash.new(
+      @transactions.values.map(&:to_h).map(&:to_json)
+    ).calculate
     @signature = signature
   end
 
@@ -26,7 +31,9 @@ class Block
 
   def initialize(hash = {})
     @signature = hash.fetch(:signature)
-    @transactions = hash.fetch(:transactions)
+    @transactions = hash.fetch(:transactions).map do |k, v|
+      [k, Transaction.from_hash(v)]
+    end.to_h
     @transactions_hash = hash.fetch(:transactions_hash)
     @timestamp = hash.fetch(:timestamp)
     @allowed_miners = hash.fetch(:allowed_miners)
@@ -45,7 +52,7 @@ class Block
   # right now we assume that to_json does not change the order of stuff
   def to_json
     {
-      transactions: @transactions,
+      transactions: @transactions.map { |k, v| [k, v.to_h] }.to_h,
       transactions_hash: @transactions_hash,
       timestamp: @timestamp,
       allowed_miners: @allowed_miners,
@@ -57,6 +64,6 @@ class Block
   end
 
   def transactions_valid?
-    @transactions_hash == TransactionsHash.new(@transactions.map(&:to_json)).calculate
+    @transactions_hash == TransactionsHash.new(@transactions.values.map(&:to_json)).calculate
   end
 end

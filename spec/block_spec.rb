@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require './lib/block.rb'
+require './lib/miner.rb'
 
 RSpec.describe Block do
   subject { Block.new(block_hash) }
@@ -30,7 +31,7 @@ RSpec.describe Block do
   let(:transactions_hash) { 'transactions hash' }
   let(:transactions) do
     {
-      '0' => { from: '', to: 'miner_1_pub_key', amount: 100 },
+      '0' => { from: '', to: 'miner_1_pub_key', amount: 100, payload: '', signature: '' },
       # miner's reward
       # transactions have indexes from 1 to 10, block with more are invalid
       # to verify transaction, replace signature with empty string, and
@@ -46,7 +47,7 @@ RSpec.describe Block do
       expect(subject.to_json)
         .to eq '{'\
                   '"transactions":' \
-                    '{"0":{"from":"","to":"miner_1_pub_key","amount":100}},' \
+                    '{"0":{"from":"","to":"miner_1_pub_key","amount":100,"payload":"","signature":""}},' \
                  '"transactions_hash":"transactions hash",' \
                  '"timestamp":123456,'\
                  '"allowed_miners":'\
@@ -64,7 +65,7 @@ RSpec.describe Block do
     describe '#transactions_valid?' do
       subject { described_class.from_hash(block_hash).transactions_valid? }
 
-      let(:transactions_hash) { TransactionsHash.new(transactions.map(&:to_json)).calculate }
+      let(:transactions_hash) { TransactionsHash.new(transactions.values.map(&:to_json)).calculate }
 
       it { is_expected.to eq true }
 
@@ -86,7 +87,7 @@ RSpec.describe Block do
   describe 'signed_by?' do
     subject { block.signed_by?(miner) }
 
-    let(:transactions_hash) { TransactionsHash.new(transactions.map(&:to_json)).calculate }
+    let(:transactions_hash) { TransactionsHash.new(transactions.values.map(&:to_json)).calculate }
     let(:block) { Block.new(block_hash) }
     let(:miner) { Miner.generate }
     let(:other_miner) { Miner.generate }
