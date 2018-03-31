@@ -7,6 +7,8 @@ require_relative 'transaction.rb'
 # Block class
 class Block
   attr_reader :transactions
+  attr_reader :allowed_miners
+  attr_reader :signed_by
 
   def signed?
     !(@signature.nil? || @signature.empty?)
