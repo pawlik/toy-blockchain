@@ -10,6 +10,7 @@ class Chain
     raise 'Invalid block' unless block.signed?
     assert_signed_by_approved_miners(block)
     validate_transactions!(block)
+    update_balances!(block)
     @the_chain << block
     true
   end
@@ -18,11 +19,32 @@ class Chain
     @the_chain.size
   end
 
+  def balance(pkey)
+    @balances[pkey]
+  end
+
+  def initialize
+    @balances = {}
+  end
+
   private
 
+  def update_balances!(block)
+    block.transactions.each do |index, transaction|
+      if transaction.from == '' && index == '0'
+        @balances[transaction.to] = (@balances[transaction.to] || 0.0) + transaction.amount
+      else
+        balance_from = @balances[transaction.from] || 0
+        raise 'Overspending!' if balance_from < transaction.amount
+        @balances[transaction.to] = (@balances[transaction.to] || 0.0) + transaction.amount
+        @balances[transaction.from] -= transaction.amount
+      end
+    end
+  end
+
   def validate_transactions!(block)
-    block.transactions.each do |_index, transaction|
-      raise 'Invalid block' if transaction.amount != MINER_REWARD
+    block.transactions.each do |index, transaction|
+      raise 'Invalid block' if index == '0' && transaction.amount != MINER_REWARD
     end
   end
 
