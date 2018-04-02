@@ -8,7 +8,7 @@ require_relative 'transaction.rb'
 class Block
   attr_reader :transactions
   attr_reader :allowed_miners
-  attr_reader :signed_by
+  attr_accessor :signed_by
 
   def signed?
     !(@signature.nil? || @signature.empty?)
@@ -41,8 +41,8 @@ class Block
     @allowed_miners = hash.fetch(:allowed_miners)
     @height = hash.fetch(:height)
     @previous_hash = hash.fetch(:previous_hash)
-    @signed_by = hash.fetch(:signed_by)
-    @signature = hash.fetch(:signature)
+    @signed_by = hash.fetch(:signed_by, nil)
+    @signature = hash.fetch(:signature, nil)
   end
 
   def self.from_hash(hash)

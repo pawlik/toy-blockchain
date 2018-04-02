@@ -14,7 +14,7 @@ RSpec.describe Miner do
   # Miner.verify(block, previous_block, miners_public_key)
 
   describe '.generate' do
-    subject { described_class.generate }
+    subject { described_class.generate('foo') }
 
     specify 'generated miner has public key' do
       expect(subject.public_key.to_s).not_to be_empty
@@ -24,7 +24,7 @@ RSpec.describe Miner do
   describe '#mine' do
     subject { miner.sign(block) }
     let(:block) { Block.new(block_hash) }
-    let(:miner) { described_class.generate }
+    let(:miner) { described_class.generate('foo') }
 
     let(:block_hash) do
       {
@@ -34,7 +34,6 @@ RSpec.describe Miner do
         allowed_miners: {},
         height: 0, # important :)
         previous_hash: '',
-        signed_by: 'miner_1',
         signature: ''
       }
     end

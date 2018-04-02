@@ -89,8 +89,8 @@ RSpec.describe Block do
 
     let(:transactions_hash) { TransactionsHash.new(transactions.values.map(&:to_json)).calculate }
     let(:block) { Block.new(block_hash) }
-    let(:miner) { Miner.generate }
-    let(:other_miner) { Miner.generate }
+    let(:miner) { Miner.generate('miner_1') }
+    let(:other_miner) { Miner.generate('miner_2') }
 
     before { miner.sign(block) }
 

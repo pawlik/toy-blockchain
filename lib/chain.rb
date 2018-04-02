@@ -51,7 +51,7 @@ class Chain
   def assert_signed_by_approved_miners(block)
     genesis_block = @the_chain.first || block
     pkey = OpenSSL::PKey::RSA.new(genesis_block.allowed_miners[block.signed_by][:key])
-    miner = Miner.new(pkey)
+    miner = Miner.new(pkey, block.signed_by)
     raise 'Invalid block (miner\'s key not found on the list)' unless miner.signed_by_self?(block)
   end
 end

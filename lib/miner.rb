@@ -4,12 +4,13 @@ require 'openssl'
 class Miner
   KEY_BYTES = 2048
 
-  def initialize(rsa)
+  def initialize(rsa, identifier)
     @rsa = rsa
+    @identifier = identifier
   end
 
-  def self.generate
-    new OpenSSL::PKey::RSA.generate(KEY_BYTES)
+  def self.generate(identifier)
+    new OpenSSL::PKey::RSA.generate(KEY_BYTES), identifier
   end
 
   def public_key
@@ -17,6 +18,7 @@ class Miner
   end
 
   def sign(block)
+    block.signed_by = @identifier
     raise 'Invalid block' unless block.transactions_valid?
     block.unsign!
 
