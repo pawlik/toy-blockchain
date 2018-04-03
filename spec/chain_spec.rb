@@ -66,6 +66,20 @@ RSpec.describe Chain do
     end
   end
 
+  desctibe "miner's competition" do
+    # Maybe we can assume that miner's will be always online and have one sign odd, and the other
+    # even blocks. But then it makes not much sense to have two miners. 
+
+    # Maybe we can have one master, and one slave. Add master block immediatelly. When we don't here from 
+    # master - we add slave's N block only when we hear aboyt N+1 block (from slave/or master).
+    # This way master can become offline, but slave will not compete with him when minor connection issue
+    # occurs. 
+
+    # If both miner's are offline, but some wallets/nodes hear only from master, and some only from slave
+    # (network partition?), then after the issue is gone - the `master` nodes will have longer chain (by one)
+    # and the competition will be resolved?
+  end
+
   describe '#add' do
     subject { Chain.new }
     let(:block) { Block.new(block_hash) }
@@ -93,11 +107,39 @@ RSpec.describe Chain do
       end
 
       context 'adding next block' do
-        context 'second block is not on the list on gensis block'
-        context 'second block reward is not 100'
+        before { subject.add(block) }
+
+        let(:second_block) { Block.new(second_block_hash) }
+
+        context "the block's height is not 1" do
+          specify 'the block is not accepted'
+        end
+        context 'second block is not on the list on gensis block' do
+          specify 'the block is not accepted'
+        end
+        context 'second block reward is not 100' do
+          specify 'this block is not accepted'
+        end
         context 'second block has less than 10 transactions' do
-          context 'when mined sooner than 10 minutes before the previous one'
-          context 'when mined later than 10 minutes after previous one'
+          context 'when mined sooner than 10 minutes before the previous one' do
+            specify 'this block is not accepted'
+          end
+          context 'when mined later than 10 minutes after previous one' do
+            specify 'the block is accepted'
+          end
+        end
+
+        context 'second block is mined with 10 transactions' do
+          context 'when mined sooner than 10 minutes after the previous one' do
+            specify 'the block is accepted'
+          end
+          context 'when mined later 10 minutes after previous one' do
+            specify 'the block is accepted'
+          end
+        end
+
+        context 'second block has information about additional miners' do
+          specify 'block signed by those miner are not accepted'
         end
       end
 
@@ -107,6 +149,10 @@ RSpec.describe Chain do
         specify do
           expect { subject.add(block) }.to raise_error 'Invalid block'
         end
+      end
+
+      context 'when height is not 0' do
+        specify 'such block is not valid'
       end
 
       context 'when gensis block is signed by different miner than specified in genesis block' do
