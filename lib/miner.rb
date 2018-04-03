@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'openssl'
+require 'base64'
+
 class Miner
   KEY_BYTES = 2048
 
@@ -36,18 +38,20 @@ class Miner
   private
 
   def sign_str(str)
-    @rsa.sign_pss(
-      'SHA256',
-      str,
-      salt_length: :max,
-      mgf1_hash: 'SHA256'
+    Base64.encode64(
+      @rsa.sign_pss(
+        'SHA256',
+        str,
+        salt_length: :max,
+        mgf1_hash: 'SHA256'
+      )
     )
   end
 
   def verify_str(signature, str)
     @rsa.verify_pss(
       'SHA256',
-      signature,
+      Base64.decode64(signature),
       str,
       salt_length: :auto,
       mgf1_hash: 'SHA256'
