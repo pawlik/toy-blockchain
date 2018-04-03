@@ -2,6 +2,9 @@
 
 require './lib/miner.rb'
 
+# Most blockchain validations are here.
+# Chain knows the balances of each address and can detect overspending etc.
+# First added block is a genesis block.
 class Chain
   MINER_REWARD = 100
 
@@ -31,15 +34,19 @@ class Chain
 
   def update_balances!(block)
     block.transactions.each do |index, transaction|
-      if transaction.from == '' && index == '0'
-        @balances[transaction.to] = (@balances[transaction.to] || 0.0) + transaction.amount
-      else
-        balance_from = @balances[transaction.from] || 0
-        raise 'Overspending!' if balance_from < transaction.amount
-        @balances[transaction.to] = (@balances[transaction.to] || 0.0) + transaction.amount
-        @balances[transaction.from] -= transaction.amount
-      end
+      assert_no_overspending!(transaction) unless miner_reward?(transaction, index)
+      @balances[transaction.to] = (@balances[transaction.to] || 0.0) + transaction.amount
+      @balances[transaction.from] -= transaction.amount unless miner_reward?(transaction, index)
     end
+  end
+
+  def miner_reward?(transaction, index)
+    transaction.from == '' && index == '0'
+  end
+
+  def assert_no_overspending!(transaction)
+    balance_from = @balances[transaction.from] || 0
+    raise 'Overspending!' if balance_from < transaction.amount
   end
 
   def validate_transactions!(block)
