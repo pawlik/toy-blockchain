@@ -92,6 +92,15 @@ RSpec.describe Chain do
         expect(subject.size).to eq 1
       end
 
+      context 'adding next block' do
+        context 'second block is not on the list on gensis block'
+        context 'second block reward is not 100'
+        context 'second block has less than 10 transactions' do
+          context 'when mined sooner than 10 minutes before the previous one'
+          context 'when mined later than 10 minutes after previous one'
+        end
+      end
+
       context "when miner's reward is not 100" do
         let(:mining_reward) { 101 }
 
