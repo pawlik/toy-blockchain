@@ -40,7 +40,7 @@ RSpec.describe Miner do
     let(:transactions_hash) { 'transactions hash' }
     let(:transactions) { {} }
 
-    specify { expect { subject }.to raise_error('Invalid block') }
+    specify { expect { subject }.to raise_error('Invalid block (transactions hash mismatch)') }
 
     context "block's transactions are correctly signed" do
       let(:transactions_hash) { TransactionsHash.new(transactions.map(&:to_json)).calculate }

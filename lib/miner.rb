@@ -21,7 +21,7 @@ class Miner
 
   def sign(block)
     block.signed_by = @identifier
-    raise 'Invalid block' unless block.transactions_valid?
+    raise 'Invalid block (transactions hash mismatch)' unless block.transactions_valid?
     block.unsign!
 
     block.sign!(sign_str(block.to_json))

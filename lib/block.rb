@@ -8,6 +8,10 @@ require_relative 'transaction.rb'
 class Block
   attr_reader :transactions
   attr_reader :allowed_miners
+  attr_reader :height
+  attr_reader :signature
+  attr_reader :previous_hash
+  attr_reader :timestamp
   attr_accessor :signed_by
 
   def signed?

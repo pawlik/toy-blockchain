@@ -15,7 +15,7 @@ class Transaction
     @from = hash.fetch(:from)
     @to = hash.fetch(:to)
     @amount = hash.fetch(:amount)
-    @payload = hash.fetch(:payload)
+    @payload = hash.fetch(:payload, '')
     @signature = hash.fetch(:signature)
   end 
 
