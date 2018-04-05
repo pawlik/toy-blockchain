@@ -68,6 +68,14 @@ class Block
   end
 
   def transactions_valid?
+    hash_valid? && transactions_correctly_signed?
+  end
+
+  def transactions_correctly_signed?
+    @transactions.values.reject(&:miners_reward?).all?(&:signed?)
+  end
+
+  def hash_valid?
     @transactions_hash == TransactionsHash.new(@transactions.values.map(&:to_json)).calculate
   end
 end

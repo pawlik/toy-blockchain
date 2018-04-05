@@ -28,6 +28,12 @@ class Miner
     block
   end
 
+  def sign_transaction(transaction)
+    transaction.sign!(
+      sign_str(transaction.unsign!.to_json)
+    )
+  end
+
   # If the block has been signed by this exact miner
   def signed_by_self?(block)
     block = block.dup

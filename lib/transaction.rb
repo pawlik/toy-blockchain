@@ -10,6 +10,7 @@ class Transaction
   attr_reader :amount
   attr_reader :to
   attr_reader :from
+  attr_reader :signature
 
   def initialize(hash)
     @from = hash.fetch(:from)
@@ -17,10 +18,19 @@ class Transaction
     @amount = hash.fetch(:amount)
     @payload = hash.fetch(:payload, '')
     @signature = hash.fetch(:signature)
-  end 
+  end
 
   def self.from_hash(hash)
     new(hash)
+  end
+
+  def sign!(signature)
+    @signature = signature
+    self
+  end
+
+  def miners_reward?
+    @from == ''
   end
 
   def signed?
