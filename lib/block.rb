@@ -19,9 +19,7 @@ class Block
   end
 
   def sign!(signature)
-    raise 'Invalid transactions' unless @transactions_hash == TransactionsHash.new(
-      @transactions.values.map(&:to_h).map(&:to_json)
-    ).calculate
+    raise 'Invalid transactions' unless transactions_valid?
     @signature = signature
   end
 
