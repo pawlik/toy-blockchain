@@ -53,9 +53,20 @@ RSpec.describe Chain do
     end
     let(:second_block_transactions) do
       {
-        '0' => { from: '', to: other_miner.public_key.to_s, amount: 100, payload: '', signature: '' },
-        '1' => { from: miner.public_key.to_s, to: wallet.public_key.to_s, amount: 75, payload: '', signature: '' }
+        '0' => other_miner_reward.to_h,
+        '1' => spend_trasaction.to_h
       }
+    end
+    let(:spend_trasaction) do
+      miner.sign_transaction(
+        Transaction.from_hash(from: miner.public_key.to_s, to: wallet.public_key.to_s, amount: 75, payload: '', signature: '')
+      )
+    end
+
+    let(:other_miner_reward) do
+      other_miner.sign_transaction(
+        Transaction.from_hash(from: '', to: other_miner.public_key.to_s, amount: 100, payload: '', signature: '')
+      )
     end
 
     before do
@@ -207,7 +218,14 @@ RSpec.describe Chain do
         context 'second block is mined with 10 transactions' do
           let(:second_transactions) do
             (1..10).map do |i|
-              [i.to_s, { from: miner.public_key.to_s, to: second_miner.public_key.to_s, amount: 5, payload: '', signature: '' }]
+              [
+                i.to_s,
+                miner.sign_transaction(
+                  Transaction.from_hash(
+                    from: miner.public_key.to_s, to: second_miner.public_key.to_s, amount: 5, payload: '', signature: ''
+                  )
+                ).to_h
+              ]
             end.to_h
           end
           context 'when mined sooner than 10 minutes after the previous one' do
